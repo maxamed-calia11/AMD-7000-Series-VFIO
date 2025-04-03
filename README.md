@@ -183,7 +183,7 @@ Personally, I have 2 separate VMs in virt-manager with the only difference being
 
 # Step 8: Hooks
 
-When I first finished step 7, I was eager to try out my new vm, only to realize it locked up my entire system due to a lack of proper GPU detachment and resetting. Luckily, the 7000 series is not prone to the gpu reset bug, so no `vendor-reset` needed!
+When I first finished step 7, I was eager to try out my new vm, only to realize it locked up my entire system due to a lack of proper GPU detachment and resetting. Luckily, the 7000 series is not prone to the gpu reset bug, so no `vendor-reset` needed(lowk was actually causing issues with my vm)!
 
 First, enter these commands to set up a qemu script to run our hooks:
 
