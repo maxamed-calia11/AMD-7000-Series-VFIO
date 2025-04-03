@@ -243,6 +243,8 @@ The most common error(and the one that broke everything) is unloading the amdgpu
 
 IF YOU SEE ANY ERRORS, IMMEDIATELY Ctrl+C, but DO NOT REBOOT, STAY IN THAT SHELL FOR TROUBLESHOOTING BELOW.
 
+(Any vtconsole bind errors can be ignored)
+
 In my case, I had this error:
 `modprobe: FATAL: Module amdgpu is in use.`
 
