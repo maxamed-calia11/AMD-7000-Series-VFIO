@@ -4,6 +4,8 @@ How I personally got vfio working with windows 11 using many different guides, i
 
 After months of on and off strugling with getting my AMD 7600 XT 16gb to properly passthrough, I was able to narrow down my problems to a few issues with my linux configuration, specifically with trying to remove the amdgpu kernel module and properly detaching the gpu from the system with virsh.
 
+## If you encounter any issues, want to improve my instructions, or enhance the scripts, feel free to do so! My memory was a bit fuzzy making this so I might've left out some packages or some instructions.
+
 # Step 1: Enabling Hardware Virtualization
 
 In your motherboard UEFI BIOS, if you're on an Intel platform, enable VT-x and VT-d, along with any other virtualization features
@@ -31,6 +33,7 @@ To check if IOMMU was correctly enabled, run this command:
 If you get an output with the kernel adding pci devices to iommu devices to groups, IOMMU is correctly enabled.
 
 # Step 4: apt packages
+
 This will properly install all the required software, including a gui interfact to connect to qemu and libvirtd to create, start, stop, and do whatever else with your VMs (make sure to update and upgrade all packages before anything else!):
 
 `sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager libguestfs-tools`
@@ -60,12 +63,15 @@ The next commands are mostly systemd specific but should be possible on any linu
 ```
 sudo usermod -aG libvirt $(whoami)
 ```
+
 ```
 sudo usermod -aG $(whoami) kvm
 ```
+
 ```
 sudo systemctl start libvirtd
 ```
+
 ```
 sudo systemctl enable libvirtd
 ```
@@ -117,11 +123,13 @@ Now, run these 2 commands so that your qemu instances can properly access the fi
 ```
 chmod -R 660 ROM_NAME.rom
 ```
+
 ```
 chown username:username ROM_NAME.rom
 ```
 
 ## Finding our GPU instance
+
 Linux has a virtual sysfs filesystem for mapping pci devices for easy use by us, and this script will let us find our GPU's pci ID along with it's hdmi/DP audio path:
 
 ```
@@ -165,7 +173,7 @@ Also, inside the `<hyperv>` tag, add this to enable display out:
 Next, we must passthrough our gpu, audio, and any USB devices. For each device in the IOMMU group with containing your GPU, click Add Hardware, select PCI Host device, and select by ID from there, repeat for your IOMMU group with your audio device.
 
 After that, go to your gpu host device, and enable ROM bar, along, and add this line below the `</source>` closing tab:
-  `<rom bar="on" file="/usr/share/vgabios/BIOS_NAME.rom"/>`
+`<rom bar="on" file="/usr/share/vgabios/BIOS_NAME.rom"/>`
 
 Make sure to click apply and it will autoformat the rest.
 
@@ -181,3 +189,100 @@ First, enter these commands to set up a qemu script to run our hooks:
 
 `mkdir -p /etc/libvirt/hooks`
 
+`sudo wget 'https://raw.githubusercontent.com/lando07/AMD-7000-Series-VFIO/refs/heads/main/qemu' -O /etc/libvirt/hooks/qemu`
+
+Then, make the new qemu script executable:
+
+`sudo chmod +x /etc/libvirt/hooks/qemu`
+
+Now, we must create a ton of new directories to store our VM startup and shutdown scripts, use `mkdir` to create these directories, substituting YOUR_VM for the name of your virtual machine:
+
+```
+/etc/libvirt/hooks/qemu.d
+
+/etc/libvirt/hooks/qemu.d/YOUR_VM
+
+/etc/libvirt/hooks/qemu.d/YOUR_VM/prepare
+
+/etc/libvirt/hooks/qemu.d/YOUR_VM/prepare/begin
+
+/etc/libvirt/hooks/qemu.d/YOUR_VM/release
+
+/etc/libvirt/hooks/qemu.d/YOUR_VM/release/end
+```
+
+Once there, in any text editor with root priveliges, edit a new file in this directory:
+
+`/etc/libvirt/hooks/qemu.d/YOUR_VM/prepare/begin/start.sh`
+
+and then add my start.sh text in this repo to that file. Then, make it executable:
+
+`sudo chmod +x /etc/libvirt/hooks/qemu.d/YOUR_VM/prepare/begin/start.sh`
+
+Repeat both steps above for this script:
+
+`/etc/libvirt/hooks/qemu.d/win10/release/end/revert.sh`
+
+Now, with that text editor with root priveliges, go to `/etc/libvirt/hooks/kvm.conf` and add these 2 lines, and replace xx with your gpu ID you passed through earler, it could be 01, in my case it was 2d, but it could be any 2-digit hexadecimal number:
+
+```
+VIRSH_GPU_VIDEO=pci_0000_xx_00_0
+
+VIRSH_GPU_AUDIO=pci_0000_xx_00_1
+```
+
+# Step 9: Testing thy scripeth
+
+Now, this is what tripped me up for so many months, and it was all because I couldn't properly rmmod amdgpu. What we're about to do, you need a second way of interfacing with the computer that doesn't require a display, like an SSH session from another laptop, as we will lose complete control and dislplay output of the computer while debugging.
+
+## Finding errors
+
+The most common error(and the one that broke everything) is unloading the amdgpu kernel module. On an external console connected to your host computer (either thru serial, ssh, whatever), Run the following command as root:
+
+`/etc/libvirt/hooks/qemu.d/win10/prepare/begin/start.sh`
+
+IF YOU SEE ANY ERRORS, IMMEDIATELY Ctrl+C, but DO NOT REBOOT, STAY IN THAT SHELL FOR TROUBLESHOOTING BELOW.
+
+In my case, I had this error:
+`modprobe: FATAL: Module amdgpu is in use.`
+
+This happens for usually one of 2 reasons, another kernel module is using amdgpu, or a software is using amdgpu.
+
+First, run this command:
+
+`$ sudo lsmod | grep amdgpu`
+
+You will get an output similar to this:
+
+<span style="font-family:monospace"><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;14434304 &#160;101</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">amdxcp &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;12288 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">drm_exec &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;12288 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">gpu_sched &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;65536 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">drm_buddy &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;20480 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">drm_suballoc_helper &#160;&#160;&#160;12288 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">drm_display_helper &#160;&#160;&#160;274432 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">drm_ttm_helper &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;16384 &#160;2 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">i2c_algo_bit &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;16384 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">video &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;81920 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">ttm &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;106496 &#160;2 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,drm_ttm_helper</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">drm_kms_helper &#160;&#160;&#160;&#160;&#160;&#160;&#160;253952 &#160;3 drm_display_helper,</span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,drm_ttm_helper</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">drm &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;770048 &#160;38 gpu_sched,drm_kms_helper,drm_exec,drm_suballoc_helper,drm_display_helper,drm_buddy,</span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,drm_ttm_helper,ttm,amdxcp</span><span style="color:#000000; ;">
+</span><br><span style="color:#000000; ;">crc16 &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;12288 &#160;3 bluetooth,</span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,ext4</span><br><span style="color:#000000; ;">
+</span><br></span>
+
+At the top is the amdgpu driver, and below are other modules, and the modules on the right are modules USED by the amdgpu driver. Since there are no modules using the amdgpu driver, we do not need to remove any additional kernel modules to remove the amdgpu module.
+
+### So, why can't we remove the kernel module?
+
+That's what I was stuck wondering for so long, but I now know that processes and daemons can directly use the driver .ko file, and will not show up here, but still throw an error.
+
+To find these pesky services and processes, run this command(RUN THIS ONLY AFTER `start.sh` after the modprobe error appears):
+
+`sudo lsof | grep amdgpu`
+
+In my case, a process which controls my fans, `coolercontrold` was using the amdgpu kernel driver. By stopping this service, and re-running the script, SUCCESS! My gpu was successfully detatched! Any services or processes you find must be stopped in the `start.sh` (I have a comment where you need to place the commands in the file). Also, restart these processes and services in the `revert.sh` file so that your desktop and apps can be properly restored.
+
+Once these changes are made, run the `start.sh` file, verify that it exits and does not hang(it may take up to 20 seconds for it to exit due to the sleep commands in the file), and do the same for `revert.sh`. If your login screen properly restores after `revert.sh` is executed, your single-gpu-passthrough VFIO VM is ready!
+
+# Step 10: VFIO GO BRRRRR
+Make sure to close all applications before starting your VM, and then click the play button! You may have to wait up to 30 seconds for a display signal, or even longer if windows takes a hot second to pick up your gpu drivers and install them. I can confirm that multiple displays work, too. When shutting down, once windows shuts down, it may take up to 30 seconds for your display and login to restore, due to reloading the kernel driver and the delays to prevent race conditions.
