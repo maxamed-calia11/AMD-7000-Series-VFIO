@@ -195,7 +195,7 @@ Then, make the new qemu script executable:
 
 `sudo chmod +x /etc/libvirt/hooks/qemu`
 
-Now, we must create a ton of new directories to store our VM startup and shutdown scripts, use `mkdir` to create these directories, substituting YOUR_VM for the name of your virtual machine:
+Now, we must create a ton of new directories to store our VM startup and shutdown scripts, use `mkdir` to create these directories, substituting YOUR_VM for the name of your virtual machine(case sensitive):
 
 ```
 /etc/libvirt/hooks/qemu.d
@@ -246,7 +246,7 @@ IF YOU SEE ANY ERRORS, IMMEDIATELY Ctrl+C, but DO NOT REBOOT, STAY IN THAT SHELL
 In my case, I had this error:
 `modprobe: FATAL: Module amdgpu is in use.`
 
-This happens for usually one of 2 reasons, another kernel module is using amdgpu, or a software is using amdgpu.
+This happens for usually one of 2 reasons, another kernel module is using amdgpu, or certian software and/or daemons are using amdgpu.
 
 First, run this command:
 
@@ -275,11 +275,13 @@ At the top is the amdgpu driver, and below are other modules, and the modules on
 
 ### So, why can't we remove the kernel module?
 
-That's what I was stuck wondering for so long, but I now know that processes and daemons can directly use the driver .ko file, and will not show up here, but still throw an error.
+That's what I was stuck wondering for so long, but I now know that processes and daemons can directly use the driver .ko file, and will NOT show up here, but still throw an error.
 
-To find these pesky services and processes, run this command(RUN THIS ONLY AFTER `start.sh` after the modprobe error appears):
+To find these pesky services and processes, run this command(RUN THIS ONLY AFTER `start.sh` and after the modprobe error appears and you Ctrl+C'd the script):
 
 `sudo lsof | grep amdgpu`
+
+### If this gives a huge output that is more than a few lines, and includes stuff from your display manager, wayland, xorg, or other processes, then your display manager is not shut down, make sure it is fully shut down (for me I execute `sudo systemctl stop sddm`) before proceeding
 
 In my case, a process which controls my fans, `coolercontrold` was using the amdgpu kernel driver. By stopping this service, and re-running the script, SUCCESS! My gpu was successfully detatched! Any services or processes you find must be stopped in the `start.sh` (I have a comment where you need to place the commands in the file). Also, restart these processes and services in the `revert.sh` file so that your desktop and apps can be properly restored.
 
