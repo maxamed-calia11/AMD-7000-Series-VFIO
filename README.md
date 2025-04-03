@@ -168,7 +168,7 @@ Also, I'm not sure how, but make sure that in the XML editor, the `<hyperv>...</
 
 Also, inside the `<hyperv>` tag, add this to enable display out:
 
-`      <vendor_id state="on" value="randomid"/>`
+`<vendor_id state="on" value="randomid"/>`
 
 Next, we must passthrough our gpu, audio, and any USB devices. For each device in the IOMMU group with containing your GPU, click Add Hardware, select PCI Host device, and select by ID from there, repeat for your IOMMU group with your audio device.
 
@@ -253,22 +253,23 @@ First, run this command:
 `$ sudo lsmod | grep amdgpu`
 
 You will get an output similar to this:
+```
+amdgpu              14434304  101
+amdxcp                 12288  1 amdgpu
+drm_exec               12288  1 amdgpu
+gpu_sched              65536  1 amdgpu
+drm_buddy              20480  1 amdgpu
+drm_suballoc_helper    12288  1 amdgpu
+drm_display_helper    274432  1 amdgpu
+drm_ttm_helper         16384  2 amdgpu
+i2c_algo_bit           16384  1 amdgpu
+video                  81920  1 amdgpu
+ttm                   106496  2 amdgpu,drm_ttm_helper
+drm_kms_helper        253952  3 drm_display_helper,amdgpu,drm_ttm_helper
+drm                   770048  38 gpu_sched,drm_kms_helper,drm_exec,drm_suballoc_helper,drm_display_helper drm_buddy,amdgpu,drm_ttm_helper,ttm,amdxcp
+crc16                  12288  3 bluetooth,amdgpu,ext4
 
-<span style="font-family:monospace"><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;"> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;14434304 &#160;101</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">amdxcp &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;12288 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">drm_exec &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;12288 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">gpu_sched &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;65536 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">drm_buddy &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;20480 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">drm_suballoc_helper &#160;&#160;&#160;12288 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">drm_display_helper &#160;&#160;&#160;274432 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">drm_ttm_helper &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;16384 &#160;2 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">i2c_algo_bit &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;16384 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">video &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;81920 &#160;1 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">ttm &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;106496 &#160;2 </span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,drm_ttm_helper</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">drm_kms_helper &#160;&#160;&#160;&#160;&#160;&#160;&#160;253952 &#160;3 drm_display_helper,</span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,drm_ttm_helper</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">drm &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;770048 &#160;38 gpu_sched,drm_kms_helper,drm_exec,drm_suballoc_helper,drm_display_helper,drm_buddy,</span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,drm_ttm_helper,ttm,amdxcp</span><span style="color:#000000; ;">
-</span><br><span style="color:#000000; ;">crc16 &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;12288 &#160;3 bluetooth,</span><span style="font-weight:bold;color:#ff5454; ;">amdgpu</span><span style="color:#000000; ;">,ext4</span><br><span style="color:#000000; ;">
-</span><br></span>
+```
 
 At the top is the amdgpu driver, and below are other modules, and the modules on the right are modules USED by the amdgpu driver. Since there are no modules using the amdgpu driver, we do not need to remove any additional kernel modules to remove the amdgpu module.
 
