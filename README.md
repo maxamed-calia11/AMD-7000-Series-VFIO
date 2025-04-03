@@ -172,7 +172,7 @@ Also, inside the `<hyperv>` tag, add this to enable display out:
 
 Next, we must passthrough our gpu, audio, and any USB devices. For each device in the IOMMU group with containing your GPU, click Add Hardware, select PCI Host device, and select by ID from there, repeat for your IOMMU group with your audio device.
 
-After that, go to your gpu host device, and enable ROM bar, along, and add this line below the `</source>` closing tab:
+After that, go to your gpu host device, and enable ROM bar, along, and make sure the rom xml tag below the `</source>` closing tag looks like this(replace BIOS_NAME with your bios name from earlier):
 `<rom bar="on" file="/usr/share/vgabios/BIOS_NAME.rom"/>`
 
 Make sure to click apply and it will autoformat the rest.
