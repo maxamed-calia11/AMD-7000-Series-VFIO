@@ -80,7 +80,7 @@ sudo systemctl enable libvirtd
 
 In any editor with root priveleges, go to `/etc/libvirt/qemu.conf`
 
-Change `#user = "root"` to `user = your username`
+Change `#user = "root"` to `user = "your username"`
 
 and `#group = "root"` to `group = "your username"`
 
