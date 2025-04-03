@@ -26,5 +26,6 @@ modprobe snd_hda_intel
 
 sleep 3
 
-systemctl start coolercontrold
+#Add additional services that use the amdgpu driver here
+#replace sddm with your display manager, or consult other guides for how to do VFIO with those display managers
 systemctl start sddm

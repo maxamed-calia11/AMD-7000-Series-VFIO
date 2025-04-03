@@ -5,7 +5,9 @@ set -x
 
 source "/etc/libvirt/hooks/kvm.conf"
 
-systemctl stop sddm coolercontrold
+#replace sddm with your display manager, or consult other guides for how to do VFIO with those display managers
+systemctl stop sddm
+#Add additional services that use the amdgpu driver here
 
 echo 0 > /sys/class/vtconsole/vtcon0/bind
 echo 0 > /sys/class/vtconsole/vtcon1/bind
