@@ -1,10 +1,10 @@
 # AMD-7000-Series-Single-GPU-Passthrough VFIO
 
-How I personally got vfio working with windows 11 using many different guides, inspired by [this guide](https://github.com/mike11207/single-gpu-passthrough-amd-gpu/tree/mainhttps:/)
+## How I personally got vfio working with windows 11 using many different guides, inspired by [this guide](https://github.com/mike11207/single-gpu-passthrough-amd-gpu/tree/mainhttps:/)
 
 After months of on and off strugling with getting my AMD 7600 XT 16gb to properly passthrough, I was able to narrow down my problems to a few issues with my linux configuration, specifically with trying to remove the amdgpu kernel module and properly detaching the gpu from the system with virsh.
 
-## If you encounter any issues, want to improve my instructions, or enhance the scripts, feel free to do so! My memory was a bit fuzzy making this so I might've left out some packages or some instructions.
+## If you encounter any issues, want to improve my instructions, or enhance the scripts, feel free to do so! My memory was a bit fuzzy making this and my pc has had a lot of new packages and updates since I started this so I might've left out some packages or some instructions.
 
 # Step 1: Enabling Hardware Virtualization
 
@@ -239,7 +239,7 @@ Now, this is what tripped me up for so many months, and it was all because I cou
 
 ## Finding errors
 
-The most common error(and the one that broke everything) is unloading the amdgpu kernel module. On an external console connected to your host computer (either thru serial, ssh, whatever), Run the following command as root, keep in mind you will immediately lose all display out and control, so do not do this from the PC with the VM:
+The most common error(and the one that broke everything) is unloading the amdgpu kernel module. On an external console connected to your host computer (either thru serial, ssh, etc), Run the following command as root, keep in mind you will immediately lose all display out and control, so do not do this from the PC hosting the VM:
 
 `/etc/libvirt/hooks/qemu.d/win10/prepare/begin/start.sh`
 
@@ -275,7 +275,7 @@ crc16                  12288  3 bluetooth,amdgpu,ext4
 
 ```
 
-At the top is the amdgpu driver, and below are other modules, and the modules on the right are modules USED by the amdgpu driver. Since there are no modules using the amdgpu driver, we do not need to remove any additional kernel modules to remove the amdgpu module.
+At the top is the amdgpu driver, and below are other modules, and the modules on the right are modules USED by the amdgpu driver. Since there are no modules USING the amdgpu driver, we do not need to remove any additional kernel modules to remove the amdgpu module.
 
 ### So, why can't we remove the kernel module?
 
