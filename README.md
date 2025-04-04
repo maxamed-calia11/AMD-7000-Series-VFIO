@@ -2,7 +2,7 @@
 
 ## How I personally got vfio working with windows 11 using many different guides, inspired by [this guide](https://github.com/mike11207/single-gpu-passthrough-amd-gpu/tree/mainhttps:/)
 
-After months of on and off strugling with getting my AMD 7600 XT 16gb to properly passthrough, I was able to narrow down my problems to a few issues with my linux configuration, specifically with trying to remove the amdgpu kernel module and properly detaching the gpu from the system with virsh.
+After months of on and off strugling with getting my AMD 7600 XT 16gb to properly passthrough, I was able to narrow down my problems to a few issues with my Linux configuration, specifically with trying to remove the amdgpu kernel module and properly detaching the gpu from the system with virsh.
 
 ## If you encounter any issues, want to improve my instructions, or enhance the scripts, feel free to do so! My memory was a bit fuzzy making this and my pc has had a lot of new packages and updates since I started this so I might've left out some packages or some instructions.
 
@@ -14,7 +14,7 @@ If you're on and AMD platform, enable SVM and any IOMMU options in your UEFI BIO
 
 # Step 2: GRUB Command Line
 
-I'm only well-versed in booting linux with grub2, so if you're using systemd-boot, consult another guide to add these lines to your kernel command line:
+I'm only well-versed in booting Linux with grub2, so if you're using systemd-boot, consult another guide to add these lines to your kernel command line:
 
 If on AMD:
 
@@ -24,7 +24,7 @@ If on Intel:
 
 `intel_iommu=on iommu=pt`
 
-# Step 3: Verifying that linux enabled IOMMU and added your devices
+# Step 3: Verifying that Linux enabled IOMMU and added your devices
 
 To check if IOMMU was correctly enabled, run this command:
 
