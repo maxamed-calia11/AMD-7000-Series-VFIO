@@ -16,11 +16,11 @@ echo 0 > /sys/class/vtconsole/vtcon1/bind
 sleep 10
 
 
-virsh nodedev-detach $VIRSH_GPU_VIDEO
-virsh nodedev-detach $VIRSH_GPU_AUDIO
-
 modprobe -r amdgpu
 modprobe -r snd_hda_intel
+
+virsh nodedev-detach $VIRSH_GPU_VIDEO
+virsh nodedev-detach $VIRSH_GPU_AUDIO
 
 sleep 10
 
